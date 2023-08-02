@@ -8,6 +8,13 @@ const ExpressError = require("./expressError")
 
 app.use(express.json());
 
+// Require and use your route modules
+const companiesRoutes = require('./routes/companies');
+const invoicesRoutes = require('./routes/invoices');
+
+app.use('/companies', companiesRoutes);
+app.use('/invoices', invoicesRoutes);
+
 
 /** 404 handler */
 
