@@ -2,10 +2,8 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-// Middleware to parse JSON requests
 router.use(express.json());
 
-// GET /invoices
 router.get('/', async (req, res, next) => {
   try {
     const result = await db.query('SELECT id, comp_code FROM invoices');
@@ -15,7 +13,6 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-// GET /invoices/:id
 router.get('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -35,7 +32,6 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-// POST /invoices
 router.post('/', async (req, res, next) => {
   try {
     const { comp_code, amt } = req.body;
@@ -50,14 +46,19 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-// PUT /invoices/:id
 router.put('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { amt } = req.body;
+    const { amt, paid } = req.body;
+
+    let paidDate = null;
+    if (paid) {
+      paidDate = new Date();
+    }
+
     const result = await db.query(
-      'UPDATE invoices SET amt = $1 WHERE id = $2 RETURNING id, comp_code, amt, paid, add_date, paid_date',
-      [amt, id]
+      'UPDATE invoices SET amt = $1, paid = $2, paid_date = $3 WHERE id = $4 RETURNING id, comp_code, amt, paid, add_date, paid_date',
+      [amt, paid, paidDate, id]
     );
 
     if (result.rows.length === 0) {
@@ -70,7 +71,6 @@ router.put('/:id', async (req, res, next) => {
   }
 });
 
-// DELETE /invoices/:id
 router.delete('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -87,3 +87,4 @@ router.delete('/:id', async (req, res, next) => {
 });
 
 module.exports = router;
+
